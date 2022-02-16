@@ -1,0 +1,29 @@
+[
+    {
+        "type": "Accordion",
+        "properties": {
+            "name": "General",
+            "collapsed": false
+        },
+        "children": [
+            {
+                "type": "InputBox",
+                "properties": {
+                    "labelName": "Source Data:",
+                    "allowBinding": true,
+                    "allowManualEntry": false,
+                    "bindingPropertyName": "rawData"
+                }
+            },
+            {
+                "type": "InputBox",
+                "properties": {
+                    "labelName": "Unique Data Desination:",
+                    "allowBinding": true,
+                    "allowManualEntry": false,
+                    "bindingPropertyName": "uniqueData"
+                }
+            }          
+        ]
+    }
+]
