@@ -1,0 +1,10 @@
+[
+    {
+        "property": "url",
+        "direction": "receive"
+    },
+    {
+        "property": "withImage",
+        "direction": "receive"
+    }
+]
