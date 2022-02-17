@@ -289,6 +289,22 @@ export class SquirrelHelper {
     }
 
     /**
+     * Used to turn a property with array positions into a generic property name for doing check against
+     * @param property dot notation property to convert   eg series.0.enabled
+     * @returns property with indexes changed to *   eg series.*.series
+     */
+     protected getGenericProperty(property: string): string {
+        let propertyArray = property.split('.');
+        propertyArray = propertyArray.map((value: any) => {
+            if (!isNaN(value)) {
+                value = '*';
+            }
+            return value;
+        });
+        return propertyArray.join('.');
+    }
+
+    /**
      * Overridable
      * Called when a setSize event is received from Squirrel
      * @param size the size object passed in from the message handler
