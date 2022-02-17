@@ -1,9 +1,10 @@
 import { Directive, HostListener } from "@angular/core";
+import { environment } from "src/environments/environment";
 declare var w3color: any;
 
 @Directive()
 export class SquirrelHelper {
-    debug = true;
+    debug = environment.debug;
 
     testMessage = 'Move along.';
     private ifid = 'Nothing to see here.'
