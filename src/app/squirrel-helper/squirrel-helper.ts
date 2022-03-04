@@ -99,7 +99,7 @@ export class SquirrelHelper {
                     // message.value = {'property':'blaa.color.0.color', 'value': '#12345', dimension: {"width":1,"height":1}}
 
                     // if it has a dimension property then we need to update our binding dimension for the property
-                    if (message.value.hasOwnProperty('dimension')) {
+                    if (message.value.hasOwnProperty('dimension') && this.bindingDimensions != null) {
                         this.bindingDimensions[message.value.propery] = message.value.dimension;
                     }
 
