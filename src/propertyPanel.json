@@ -9,19 +9,20 @@
             {
                 "type": "InputBox",
                 "properties": {
-                    "labelName": "Source Data:",
+                    "labelName": "Hello world text:",
                     "allowBinding": true,
-                    "allowManualEntry": false,
-                    "bindingPropertyName": "rawData"
+                    "allowManualEntry": true,
+                    "textArea": true,
+                    "bindingPropertyName": "helloWorldData"
                 }
             },
             {
                 "type": "InputBox",
                 "properties": {
-                    "labelName": "Unique Data Desination:",
+                    "labelName": "Hello world response:",
                     "allowBinding": true,
                     "allowManualEntry": false,
-                    "bindingPropertyName": "uniqueData"
+                    "bindingPropertyName": "helloWorldResponse"
                 }
             }          
         ]

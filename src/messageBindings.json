@@ -1,10 +1,10 @@
 [
     {
-        "property": "url",
+        "property": "helloWorldData",
         "direction": "receive"
     },
     {
-        "property": "withImage",
-        "direction": "receive"
+        "property": "helloWorldResponse",
+        "direction": "send"
     }
 ]
