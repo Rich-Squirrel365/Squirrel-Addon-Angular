@@ -47,6 +47,6 @@ export class AddonComponent extends SquirrelHelper implements OnInit {
    */
   processData(value: string) {
     this.helloWorldText = value;
-    this.sendToSquirrel('helloWorldResponse', value.split('').reverse().join(''));
+    this.sendToSquirrel('helloWorldResponse', value?.split('').reverse().join(''));
   }
 }
