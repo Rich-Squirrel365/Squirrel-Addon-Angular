@@ -9,9 +9,9 @@ export class SquirrelHelper {
     testMessage = 'Move along.';
     private ifid = 'Nothing to see here.'
 
-    private size: SquirrelSize;
-    private state: any;
-    private bindingDimensions: any;
+    private _size: SquirrelSize;
+    private _state: any;
+    private _bindingDimensions: any;
     constructor() { }
 
     /**
@@ -57,7 +57,7 @@ export class SquirrelHelper {
      */
     private updatePropertyState(property: string, data: any): boolean {
         const propertyArray = property.split('.');
-        let subState = this.state;
+        let subState = this._state;
         propertyArray.forEach((value, index) => {
             if (subState && index < propertyArray.length - 1) {
                 subState = subState[value];
@@ -83,15 +83,15 @@ export class SquirrelHelper {
             switch (message.name) {
                 case 'setSize':
                     // call size changes method
-                    this.size = <SquirrelSize>message.value;
-                    this.onSetSize(this.size);
+                    this._size = <SquirrelSize>message.value;
+                    this.onSetSize(this._size);
                     break;
                 case 'initState':
                     // send copy of whole dymanic state, binding dimensions and size details
                     // value = {dynamicState: any, bindingDimensions: any, size: SquirrelSize}
-                    this.state = message.value.dynamicState ?? {};
-                    this.size = <SquirrelSize>message.value.size;
-                    this.bindingDimensions = message.value.bindingDimensions ?? {};
+                    this._state = message.value.dynamicState ?? {};
+                    this._size = <SquirrelSize>message.value.size;
+                    this._bindingDimensions = message.value.bindingDimensions ?? {};
                     this.onInitState(this.getCopyOfState());
                     break;
                 case 'propertyChange':
@@ -99,8 +99,8 @@ export class SquirrelHelper {
                     // message.value = {'property':'blaa.color.0.color', 'value': '#12345', dimension: {"width":1,"height":1}}
 
                     // if it has a dimension property then we need to update our binding dimension for the property
-                    if (message.value.hasOwnProperty('dimension') && this.bindingDimensions != null) {
-                        this.bindingDimensions[message.value.propery] = message.value.dimension;
+                    if (message.value.hasOwnProperty('dimension') && this._bindingDimensions != null) {
+                        this._bindingDimensions[message.value.propery] = message.value.dimension;
                     }
 
                     // handle processing and updating state for these specific properties
@@ -269,7 +269,7 @@ export class SquirrelHelper {
      * @returns the clone of state
      */
     protected getCopyOfState(): any {
-        return JSON.parse(JSON.stringify(this.state));
+        return JSON.parse(JSON.stringify(this._state));
     }
 
     /**
@@ -277,7 +277,7 @@ export class SquirrelHelper {
      * @returns SquirrelSize object
      */
     protected getSize(): SquirrelSize {
-        return this.size;
+        return this._size;
     }
 
     /**
@@ -286,7 +286,7 @@ export class SquirrelHelper {
      * @returns the height and width of the binding
      */
     protected getBindingDimension(property: string): SquirrelSize {
-        return <SquirrelSize>this.bindingDimensions[property];
+        return <SquirrelSize>this._bindingDimensions[property];
     }
 
     /**
