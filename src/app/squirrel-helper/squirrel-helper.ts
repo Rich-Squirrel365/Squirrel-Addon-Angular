@@ -51,7 +51,7 @@ export class SquirrelHelper {
     }
 
     /**
-     * Method used to update the widgets state using a property string
+     * Method used to update the widgets local copy of state using a property string
      * @param property property string to check
      * @param data value to check for changes
      * @returns updates the local state for the property and return bool as to whether it found and updated the value
@@ -311,7 +311,7 @@ export class SquirrelHelper {
      */
     protected setPosition(position: SquirrelPosition): void {
         const message = new SquirrelMessage(this.ifid, 'position', position);
-        if (this.debug) { console.log('CHILD - sending rezise message to parent', position) }
+        if (this.debug) { console.log('CHILD - sending position message to parent', position) }
         parent.postMessage(message, '*');
     }
 
@@ -345,7 +345,7 @@ export class SquirrelHelper {
      * Called when a setPosition event is received from Squirrel
      * @param position the position object passed in from the message handler
      */
-     onSetPosition(position: SquirrelPosition): void {
+    onSetPosition(position: SquirrelPosition): void {
         if (this.debug) {
             console.log('CHILD - setPosition message received', position);
             console.warn('CHILD - don\'t forget to override to process incoming messages');
