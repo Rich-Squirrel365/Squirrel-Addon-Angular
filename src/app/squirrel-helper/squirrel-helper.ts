@@ -10,6 +10,7 @@ export class SquirrelHelper {
     private ifid = 'Nothing to see here.'
 
     private _size: SquirrelSize;
+    private _position: SquirrelPosition;
     private _state: any;
     private _bindingDimensions: any;
     constructor() { }
@@ -86,11 +87,17 @@ export class SquirrelHelper {
                     this._size = <SquirrelSize>message.value;
                     this.onSetSize(this._size);
                     break;
+                case 'setPosition':
+                    // call position changes method
+                    this._position = <SquirrelPosition>message.value;
+                    this.onSetPosition(this._position);
+                    break;
                 case 'initState':
                     // send copy of whole dymanic state, binding dimensions and size details
                     // value = {dynamicState: any, bindingDimensions: any, size: SquirrelSize}
                     this._state = message.value.dynamicState ?? {};
                     this._size = <SquirrelSize>message.value.size;
+                    this._position = <SquirrelPosition>message.value.position
                     this._bindingDimensions = message.value.bindingDimensions ?? {};
                     this.onInitState(this.getCopyOfState());
                     break;
@@ -281,6 +288,34 @@ export class SquirrelHelper {
     }
 
     /**
+     * Get the current position of the component on the Squirrel canvas
+     * @returns SquirrelPosition object
+     */
+    protected getPosition(): SquirrelPosition {
+        return this._position;
+    }
+
+    /**
+     * Sets the size of the component in Squirrel
+     * @param size type SquirrelSize 
+     */
+    protected setSize(size: SquirrelSize): void {
+        const message = new SquirrelMessage(this.ifid, 'size', size);
+        if (this.debug) { console.log('CHILD - sending rezise message to parent', size) }
+        parent.postMessage(message, '*');
+    }
+
+    /**
+     * Sets the position of the component on the Squirrel canvas
+     * @param position type SquirrelSize 
+     */
+    protected setPosition(position: SquirrelPosition): void {
+        const message = new SquirrelMessage(this.ifid, 'position', position);
+        if (this.debug) { console.log('CHILD - sending rezise message to parent', position) }
+        parent.postMessage(message, '*');
+    }
+
+    /**
      * Returns the width and height of the Squirrel bindings for a selected property
      * @param property the dot notation reference for the property e.g. buttonColor.color.0.color
      * @returns the height and width of the binding
@@ -303,6 +338,18 @@ export class SquirrelHelper {
             return value;
         });
         return propertyArray.join('.');
+    }
+
+    /**
+     * Overridable
+     * Called when a setPosition event is received from Squirrel
+     * @param position the position object passed in from the message handler
+     */
+     onSetPosition(position: SquirrelPosition): void {
+        if (this.debug) {
+            console.log('CHILD - setPosition message received', position);
+            console.warn('CHILD - don\'t forget to override to process incoming messages');
+        }
     }
 
     /**
@@ -363,7 +410,7 @@ export class SquirrelMessage {
     id?: string;
     value: any;
 
-    constructor(id: string | null, name: string | null, value: string | null | any[]) {
+    constructor(id: string | null, name: string | null, value: string | null | any[] | SquirrelSize | SquirrelPosition) {
         if (id != null) { this.id = id; }
         if (name != null) { this.name = name; }
         if (value != null) { this.value = value; }
@@ -377,5 +424,15 @@ export class SquirrelSize {
     constructor(width: number, height: number) {
         if (width != null) { this.width = width; }
         if (height != null) { this.height = height; }
+    }
+}
+
+export class SquirrelPosition {
+    x: number;
+    y: number;
+
+    constructor(x: number, y: number) {
+        if (x != null) { this.x = x; }
+        if (y != null) { this.y = y; }
     }
 }
