@@ -17,7 +17,7 @@ export class AddonComponent extends SquirrelHelper implements OnInit {
   }
 
   override onSetPosition(position: any): void {
-    super.onSetSize(position);
+    super.onSetPosition(position);
   }
 
   override onSetSize(size: any): void {
