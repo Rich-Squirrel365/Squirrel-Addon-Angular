@@ -11,6 +11,8 @@ export class SquirrelHelper {
 
     private _size: SquirrelSize;
     private _position: SquirrelPosition;
+    private _runtimeMode: string;
+    private _canvas: SquirrelCanvas;
     private _state: any;
     private _bindingDimensions: any;
     constructor() { }
@@ -92,13 +94,25 @@ export class SquirrelHelper {
                     this._position = <SquirrelPosition>message.value;
                     this.onSetPosition(this._position);
                     break;
+                case 'setRuntimeMode':
+                    // call runtimeMode changes method
+                    this._runtimeMode = message.value;
+                    this.onSetRuntimeMode(this._runtimeMode);
+                    break;
+                case 'setCanvas':
+                    // call size changes method
+                    this._canvas = <SquirrelCanvas>message.value;
+                    this.onSetCanvas(this._canvas);
+                    break;
                 case 'initState':
                     // send copy of whole dymanic state, binding dimensions and size details
                     // value = {dynamicState: any, bindingDimensions: any, size: SquirrelSize}
                     this._state = message.value.dynamicState ?? {};
                     this._size = <SquirrelSize>message.value.size;
-                    this._position = <SquirrelPosition>message.value.position
+                    this._position = <SquirrelPosition>message.value.position;
                     this._bindingDimensions = message.value.bindingDimensions ?? {};
+                    this._runtimeMode = message.value.runtimeMode;
+                    this._canvas = message.value.canvas;
                     this.onInitState(this.getCopyOfState());
                     break;
                 case 'propertyChange':
@@ -296,6 +310,22 @@ export class SquirrelHelper {
     }
 
     /**
+     * Get the current runtime mode of the component on the Squirrel canvas
+     * @returns string
+     */
+     protected getRuntimeMode(): string {
+        return this._runtimeMode;
+    }
+
+    /**
+     * Get the current size and color of the Squirrel canvas
+     * @returns SquirrelCanvas object
+     */
+     protected getCanvas(): SquirrelCanvas {
+        return this._canvas;
+    }
+
+    /**
      * Sets the size of the component in Squirrel
      * @param size type SquirrelSize 
      */
@@ -329,7 +359,7 @@ export class SquirrelHelper {
      * @param property dot notation property to convert   eg series.0.enabled
      * @returns property with indexes changed to *   eg series.*.series
      */
-     protected getGenericProperty(property: string): string {
+    protected getGenericProperty(property: string): string {
         let propertyArray = property.split('.');
         propertyArray = propertyArray.map((value: any) => {
             if (!isNaN(value)) {
@@ -360,6 +390,30 @@ export class SquirrelHelper {
     onSetSize(size: SquirrelSize): void {
         if (this.debug) {
             console.log('CHILD - setSize message received', size);
+            console.warn('CHILD - don\'t forget to override to process incoming messages');
+        }
+    }
+
+    /**
+     * Overridable
+     * Called when a setRuntimeMode event is received from Squirrel
+     * @param mode the mode string passed in from the message handler
+     */
+    onSetRuntimeMode(mode: string): void {
+        if (this.debug) {
+            console.log('CHILD - setRuntimeMode message received', mode);
+            console.warn('CHILD - don\'t forget to override to process incoming messages');
+        }
+    }
+
+    /**
+     * Overridable
+     * Called when a setCanvas event is received from Squirrel
+     * @param canvas the canvas structure passed in from the message handler
+     */
+    onSetCanvas(canvas: SquirrelCanvas): void {
+        if (this.debug) {
+            console.log('CHILD - setCanvas message received', canvas);
             console.warn('CHILD - don\'t forget to override to process incoming messages');
         }
     }
@@ -434,5 +488,25 @@ export class SquirrelPosition {
     constructor(x: number, y: number) {
         if (x != null) { this.x = x; }
         if (y != null) { this.y = y; }
+    }
+}
+
+export class SquirrelColor {
+    color: string;
+    alpha: number;
+
+    constructor(color: string, alpha: number) {
+        if (color != null) { this.color = color; }
+        if (alpha != null) { this.alpha = alpha; }
+    }
+}
+
+export class SquirrelCanvas {
+    size: SquirrelSize;
+    color: SquirrelColor;
+
+    constructor(size: SquirrelSize, color: SquirrelColor) {
+        if (size != null) { this.size = size; }
+        if (color != null) { this.color = color; }
     }
 }
