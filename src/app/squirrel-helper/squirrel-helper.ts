@@ -304,6 +304,7 @@ export class SquirrelHelper {
     /**
      * Get the current position of the component on the Squirrel canvas
      * @returns SquirrelPosition object
+     * Added in build 1.12.x
      */
     protected getPosition(): SquirrelPosition {
         return this._position;
@@ -312,6 +313,7 @@ export class SquirrelHelper {
     /**
      * Get the current runtime mode of the component on the Squirrel canvas
      * @returns string
+     * Added in build 1.12.x
      */
      protected getRuntimeMode(): string {
         return this._runtimeMode;
@@ -320,6 +322,7 @@ export class SquirrelHelper {
     /**
      * Get the current size and color of the Squirrel canvas
      * @returns SquirrelCanvas object
+     * Added in build 1.12.x
      */
      protected getCanvas(): SquirrelCanvas {
         return this._canvas;
@@ -328,6 +331,7 @@ export class SquirrelHelper {
     /**
      * Sets the size of the component in Squirrel
      * @param size type SquirrelSize 
+     * Added in build 1.12.x
      */
     protected setSize(size: SquirrelSize): void {
         const message = new SquirrelMessage(this.ifid, 'size', size);
@@ -338,6 +342,7 @@ export class SquirrelHelper {
     /**
      * Sets the position of the component on the Squirrel canvas
      * @param position type SquirrelSize 
+     * Added in build 1.12.x
      */
     protected setPosition(position: SquirrelPosition): void {
         const message = new SquirrelMessage(this.ifid, 'position', position);
@@ -374,6 +379,7 @@ export class SquirrelHelper {
      * Overridable
      * Called when a setPosition event is received from Squirrel
      * @param position the position object passed in from the message handler
+     * Added in build 1.12.x
      */
     onSetPosition(position: SquirrelPosition): void {
         if (this.debug) {
@@ -398,6 +404,7 @@ export class SquirrelHelper {
      * Overridable
      * Called when a setRuntimeMode event is received from Squirrel
      * @param mode the mode string passed in from the message handler
+     * Added in build 1.12.x
      */
     onSetRuntimeMode(mode: string): void {
         if (this.debug) {
@@ -410,6 +417,7 @@ export class SquirrelHelper {
      * Overridable
      * Called when a setCanvas event is received from Squirrel
      * @param canvas the canvas structure passed in from the message handler
+     * Added in build 1.12.x
      */
     onSetCanvas(canvas: SquirrelCanvas): void {
         if (this.debug) {
