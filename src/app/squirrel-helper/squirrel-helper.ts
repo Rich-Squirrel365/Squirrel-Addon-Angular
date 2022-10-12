@@ -189,6 +189,24 @@ export class SquirrelHelper {
         }
     }
 
+    protected parseColor(color: any, alpha = 1, outputHex = false): string {
+        const defaultColor = '#000000';
+        const newAlpha = this.checkDecimal(alpha);
+        const newColor = (typeof color === 'string') ? color : defaultColor;
+        const w3c = w3color(newColor, null);
+        w3c.opacity = newAlpha;
+        if (outputHex) {
+          let hex = w3c.toHexString();
+          if (newAlpha < 1) {
+             
+            const alphaString = Math.floor(newAlpha * 255) < 16 ? '0' + (Math.floor(newAlpha * 255).toString(16)) : (Math.floor(newAlpha * 255).toString(16));
+            hex += String(alphaString);  // if alpha then add to hex string
+          }
+          return hex;
+        }
+        return w3c.toRgbaString();
+      }
+
     /**
      * Apply a 30% tint to a colour. 
      * @param color The colour to apply the tint to
