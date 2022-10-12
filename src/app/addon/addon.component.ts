@@ -45,8 +45,8 @@ export class AddonComponent extends SquirrelHelper implements OnInit {
   }
 
   /**
-   * Take a string, to be shown in the HTML display, reverse the 
-   * order of letters and then send back to Squirrel
+   * Take a string, to be shown in the HTML display, capitalise 
+   * the letters and then send back to Squirrel
    * @param value The string to display and return
    */
   processData(value: string) {
