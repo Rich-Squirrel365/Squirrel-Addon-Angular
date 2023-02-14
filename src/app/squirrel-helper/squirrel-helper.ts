@@ -1,4 +1,5 @@
 import { Directive, HostListener } from "@angular/core";
+import { lastValueFrom, Subject } from "rxjs";
 import { environment } from "src/environments/environment";
 declare var w3color: any;
 
@@ -15,6 +16,8 @@ export class SquirrelHelper {
     private _canvas: SquirrelCanvas;
     private _state: any;
     private _bindingDimensions: any;
+    private _customFontsArr: ExternalFontOption[];
+    private _loadedFontLinks: any = {};
     constructor() { }
 
     /**
@@ -22,8 +25,8 @@ export class SquirrelHelper {
      * @param event message incoming from parent
      */
     @HostListener('window:message', ['$event'])
-    onMessage(event: any): void {
-        this.messageHandler(event);
+    async onMessage(event: any) {
+        await this.messageHandler(event);
     }
 
     /**
@@ -79,7 +82,7 @@ export class SquirrelHelper {
      * 
      * @param event incoming message object
      */
-    private messageHandler(event: any): void {
+    private async messageHandler(event: any) {
         if (event.data.id == this.ifid) {
             const message = <SquirrelMessage>event.data;
 
@@ -132,6 +135,9 @@ export class SquirrelHelper {
                 case 'propertyChangesComplete':
                     // called at the end of the latest batch of 1 or more propertyChange events
                     this.onPropertyChangesComplete();
+                    break;
+                case 'setExternalFonts':
+                    await this.setCustomFonts(message.value);
                     break;
                 default:
                     this.catchAllMessageReceived(message);
@@ -187,6 +193,24 @@ export class SquirrelHelper {
         } else {
             if (this.debug) { console.log('CHILD - message not sent as value the same', property, data) }
         }
+    }
+
+    protected parseColor(color: any, alpha = 1, outputHex = false): string {
+        const defaultColor = '#000000';
+        const newAlpha = this.checkDecimal(alpha);
+        const newColor = (typeof color === 'string') ? color : defaultColor;
+        const w3c = w3color(newColor, null);
+        w3c.opacity = newAlpha;
+        if (outputHex) {
+            let hex = w3c.toHexString();
+            if (newAlpha < 1) {
+
+                const alphaString = Math.floor(newAlpha * 255) < 16 ? '0' + (Math.floor(newAlpha * 255).toString(16)) : (Math.floor(newAlpha * 255).toString(16));
+                hex += String(alphaString);  // if alpha then add to hex string
+            }
+            return hex;
+        }
+        return w3c.toRgbaString();
     }
 
     /**
@@ -315,7 +339,7 @@ export class SquirrelHelper {
      * @returns string
      * Added in build 1.12.x
      */
-     protected getRuntimeMode(): string {
+    protected getRuntimeMode(): string {
         return this._runtimeMode;
     }
 
@@ -324,7 +348,7 @@ export class SquirrelHelper {
      * @returns SquirrelCanvas object
      * Added in build 1.12.x
      */
-     protected getCanvas(): SquirrelCanvas {
+    protected getCanvas(): SquirrelCanvas {
         return this._canvas;
     }
 
@@ -374,6 +398,74 @@ export class SquirrelHelper {
         });
         return propertyArray.join('.');
     }
+
+    protected async setCustomFonts(fontsObj: any) {
+        this._customFontsArr = Object.keys(fontsObj).map(key => fontsObj[key].fontOption);
+        for (let index = 0; index < this._customFontsArr.length; index++) {
+            const fontOption: ExternalFontOption = this._customFontsArr[index];
+            await this.addFontToHeader(fontOption); 
+        }
+    
+    }
+
+    protected async addFontToHeader(fontOption: ExternalFontOption) {
+        // check loadedFontLinks to see if it already exists
+        const loadedFontLink = this._loadedFontLinks[fontOption.fontFamily];
+        if (loadedFontLink == null) {
+            // create the link element and add to the head tag
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = fontOption.fontLink;
+            document.getElementsByTagName('head')[0].appendChild(link);
+            // store the loaded link so it can be deleted later
+            this._loadedFontLinks[fontOption.fontFamily] = {
+                link: link,
+                counter: 1
+            };
+
+            const subj = new Subject()
+            this.preloadFont(fontOption.fontFamily, subj);
+            await lastValueFrom(subj);
+        } else {
+            // increase the counter
+            loadedFontLink.counter += 1;
+        }
+    }
+    protected removeFontToHeader(fontOption: ExternalFontOption) {
+        // check loadedFontLinks to see if it already exists
+        const loadedFontLink = this._loadedFontLinks[fontOption.fontFamily];
+        if (loadedFontLink != null) {
+            // reduce the counter
+            loadedFontLink.counter -= 1;
+            // delete the link tag and loaded link entry if count hits 0
+            if (loadedFontLink.counter <= 0) {
+                const link = loadedFontLink.link;
+                // delete the link
+                document.getElementsByTagName('head')[0].removeChild(link);
+                // delete entry from list
+                delete this._loadedFontLinks[fontOption.fontFamily]
+            }
+        }
+    }
+
+    protected preloadFont(family: string, subj: Subject<any>) {
+        // subj = new Subject();
+        const font = family.split(',')[0]?.trim();
+        const poller = setInterval(async () => {
+          await document.fonts.load(`1em ${font}`);
+          if (document.fonts.check(`1em ${font}`)) {
+            clearInterval(poller);
+            subj.next(font);
+            subj.complete();
+          }
+        }, 100);
+        setTimeout(() => {
+          clearInterval(poller)
+          subj.next(font);
+          subj.complete();
+        }, 10000);
+      }
+
 
     /**
      * Overridable
@@ -517,4 +609,10 @@ export class SquirrelCanvas {
         if (size != null) { this.size = size; }
         if (color != null) { this.color = color; }
     }
+}
+
+export class ExternalFontOption {
+    fontFamily: string;
+    text: string;
+    fontLink: string;
 }
